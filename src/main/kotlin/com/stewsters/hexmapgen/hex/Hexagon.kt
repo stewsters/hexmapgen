@@ -8,12 +8,14 @@ import kotlin.math.PI
 import kotlin.math.cos
 import kotlin.math.sin
 
+const val angle: Float = TWO_PI / 6
 
-class Hexagon(var centx: Float, var centy: Float, var radius: Float) {
+class Hexagon(
+    var centx: Float,
+    var centy: Float,
+    var radius: Float
+) {
 
-    var angle: Float = TWO_PI / 6
-
-    //    var fill: Boolean = false
     // Display info
     var c: Int? = null
     var icon: PImage? = null
@@ -40,23 +42,4 @@ class Hexagon(var centx: Float, var centy: Float, var radius: Float) {
         }
     }
 
-    //The following are all simply utility functions for setting parameters
-    fun centx(): Float {
-        return centx
-    }
-
-    fun centy(): Float {
-        return centy
-    }
-
-    val colour: Int?
-        get() = c
-
-    fun setFillColour(col: Int?) {
-        c = col
-    }
-
-//    fun setNoFill(yesno: Boolean) {
-//        fill = null
-//    }
 }

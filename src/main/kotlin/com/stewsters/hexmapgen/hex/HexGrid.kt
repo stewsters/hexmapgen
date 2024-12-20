@@ -22,7 +22,7 @@ public class HexGrid(
         //class object and storing it in the 2D array.
         for (i in 0..<rows) {
             for (j in 0..<cols) {
-                grid[j][i] = Hexagon(x.toFloat(), y.toFloat(), radius)
+                grid[j][i] = Hexagon(x, y, radius)
                 x = (x + radius * sqrt(3f))//Calculate the x offset for the next column
             }
 
@@ -49,3 +49,8 @@ public class HexGrid(
         return grid[col][row]
     }
 }
+
+
+//fun  getNeighbors(us:Vec2): List<Vec2>{
+//
+//}
