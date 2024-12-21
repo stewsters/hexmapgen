@@ -147,6 +147,12 @@ class DisplayMap : PApplet() {
             lastCity = cityHex
         }
 
+        // Critter powers
+        critters.forEach { critter ->
+            grid.hexagons
+                .maxByOrNull { critter.fitness(it) }
+                ?.let { it.satelliteData.get().tileTitle = critter.name }
+        }
 
     }
 
@@ -297,7 +303,44 @@ class DisplayMap : PApplet() {
         }
     }
 
+
+    // seats of power for each creature
+    val critters = listOf(
+        Critter("Dragon") { hex: Hexagon<TileData> ->
+            // Dragon chooses the most inaccessible mountain areas
+            if (hex.satelliteData.get().type != TerrainType.MOUNTAIN)
+                return@Critter -10000.0
+
+            val neighborDistance: Double = cities
+                .map { calc.calculateDistanceBetween(hex, it).toDouble() }
+                .minOrNull() ?: -10000.0
+
+            return@Critter neighborDistance
+        },
+        Critter("Spiders") { hex: Hexagon<TileData> ->
+            if (hex.satelliteData.get().type != TerrainType.FOREST)
+                -10000.0
+            else
+                Random.nextDouble(1000.0) - (cities
+                    .map { calc.calculateDistanceBetween(hex, it).toDouble() }
+                    .minOrNull() ?: 10000.0 )
+        },
+        Critter("Goblin") { hex: Hexagon<TileData> ->
+            if (hex.satelliteData.get().type != TerrainType.HILL)
+                -10000.0
+            else
+                Random.nextDouble(1000.0) - (cities
+                    .map { calc.calculateDistanceBetween(hex, it).toDouble() }
+                    .minOrNull() ?: 10000.0 )
+        }
+    )
+
+    // spider
+    // goblin
+
 }
+
+class Critter(val name: String, val fitness: (Hexagon<TileData>) -> Double)
 
 private fun <E> List<E>.randomList(i: Int): List<E> {
     return (1..i).map { this.random() }
