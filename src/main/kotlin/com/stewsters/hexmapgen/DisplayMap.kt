@@ -106,7 +106,12 @@ class DisplayMap : PApplet() {
             hex.setSatelliteData(
                 TileData(
                     type = terrainType,
-                    icon = terrainType.icons.randomOrNull()
+                    icons = if (terrainType.multiIcon)
+                        terrainType.icons.randomList((2..5).random())
+                    else if (terrainType.icons.isEmpty())
+                        null
+                    else
+                        listOf(terrainType.icons.random())
                 )
             )
         }
@@ -117,7 +122,7 @@ class DisplayMap : PApplet() {
                 val d = hex.satelliteData.get()
                 d.tileTitle = "City"
                 d.type = TerrainType.URBAN
-                d.icon = TerrainType.URBAN.icons.randomOrNull()
+                d.icons = listOf(TerrainType.URBAN.icons.random())
 
                 cities.add(hex)
             }
@@ -156,16 +161,11 @@ class DisplayMap : PApplet() {
                         score += landScore
                         landScore /= 2
                     }
-                // TODO: not near other cities
+                // Not near other cities
                 score += cities
                     .map { otherCity -> calc.calculateDistanceBetween(potentialCity, otherCity) }
-                    .sum ()
+                    .sum()
 
-
-//                // contain farmland
-//                if (neighbors.map { it.type }.any { farmland.contains(it) }) {
-//                    score += 10
-//                }
 
                 score
 
@@ -206,9 +206,26 @@ class DisplayMap : PApplet() {
             endShape(CLOSE)
 
             // Icon
-            if (satelliteData.icon != null) {
+            val icons = satelliteData.icons
+            if (icons != null) {
                 imageMode(CENTER)
-                image(satelliteData.icon, hex.centerX.toFloat(), hex.centerY.toFloat())
+
+                if (icons.size == 1) {
+                    image(icons.first(), hex.centerX.toFloat(), hex.centerY.toFloat())
+                } else {
+                    // need a seeded location?
+                    val cnt = icons.size
+                    icons.forEachIndexed { index, it ->
+                        val angle = 2 * PI / cnt * index
+                        image(
+                            it,
+                            hex.centerX.toFloat() + radius.toFloat() / 2f * cos(angle),
+                            hex.centerY.toFloat() + radius.toFloat() / 2f * sin(angle)
+                        )
+                    }
+
+                }
+
             }
 
             fill(0xff000000.toInt())
@@ -240,6 +257,10 @@ class DisplayMap : PApplet() {
         }
     }
 
+}
+
+private fun <E> List<E>.randomList(i: Int): List<E> {
+    return (1..i).map { this.random() }
 }
 
 private fun CubeCoordinate.toCoord(): String =

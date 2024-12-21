@@ -5,7 +5,7 @@ import processing.core.PImage
 
 data class TileData(
     var type: TerrainType? = null,
-    var icon: PImage? = null,
+    var icons: List<PImage>? = null,
     var tileTitle: String? = null,
 
     override var movementCost: Double = 1.0,

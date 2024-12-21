@@ -2,7 +2,6 @@ package com.stewsters.hexmapgen
 
 import kaiju.noise.OpenSimplexNoise
 import kotlin.math.abs
-import kotlin.math.max
 
 object TerrainGenerator {
 
