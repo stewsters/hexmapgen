@@ -67,6 +67,7 @@ class DisplayMap : PApplet() {
         TerrainType.HILL.icons = loadImages("src/main/resources/MapParts/hills")
         TerrainType.MOUNTAIN.icons = loadImages("src/main/resources/MapParts/mountains")
         TerrainType.FOREST.icons = loadImages("src/main/resources/MapParts/trees")
+        TerrainType.FIELDS.icons = loadImages("src/main/resources/MapParts/fields")
 
         val n = Random.nextLong()
 
@@ -129,6 +130,19 @@ class DisplayMap : PApplet() {
             }
         }
 
+        // Expand farmland
+        cities.forEach { city ->
+            grid.getNeighborsOf(city)
+                .filter { it.satelliteData.get().type == TerrainType.GRASSLAND }
+                .shuffled()
+                .take(3)
+                .forEach { hex ->
+                    val data = hex.satelliteData.get()
+                    data.type = TerrainType.FIELDS
+                    data.icons =
+                        TerrainType.FIELDS.icons.randomList((2..5).random())
+                }
+        }
 
         // connect each city up
         var lastCity: Hexagon<TileData>? = null
@@ -266,7 +280,7 @@ class DisplayMap : PApplet() {
         }
 
         // Draw Roads
-        stroke(0xaaDAA06D.toInt())
+        stroke(0x88DAA06D.toInt())
         strokeWeight(4f)
 
         roads.forEach {
@@ -323,7 +337,7 @@ class DisplayMap : PApplet() {
             else
                 Random.nextDouble(1000.0) - (cities
                     .map { calc.calculateDistanceBetween(hex, it).toDouble() }
-                    .minOrNull() ?: 10000.0 )
+                    .minOrNull() ?: 10000.0)
         },
         Critter("Goblin") { hex: Hexagon<TileData> ->
             if (hex.satelliteData.get().type != TerrainType.HILL)
@@ -331,7 +345,7 @@ class DisplayMap : PApplet() {
             else
                 Random.nextDouble(1000.0) - (cities
                     .map { calc.calculateDistanceBetween(hex, it).toDouble() }
-                    .minOrNull() ?: 10000.0 )
+                    .minOrNull() ?: 10000.0)
         }
     )
 
