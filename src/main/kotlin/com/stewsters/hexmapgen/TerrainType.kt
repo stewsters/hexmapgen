@@ -22,5 +22,5 @@ enum class TerrainType(
     HILL(0xff9fc5ad.toInt(), traversalCost = 10.0),
     MOUNTAIN(0xffb7b7b7.toInt(), traversalCost = 50.0);
 
-    var icons: List<PImage> = listOf<PImage>()
+    var icons: List<PImage> = listOf()
 }

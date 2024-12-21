@@ -49,7 +49,7 @@ class DisplayMap : PApplet() {
             .setRadius(radius)
             .build()
 
-        calc = builder.buildCalculatorFor(grid);
+        calc = builder.buildCalculatorFor(grid)
 
 
         // set initial camera pos
@@ -81,14 +81,10 @@ class DisplayMap : PApplet() {
 
         grid.hexagons.forEach { hex ->
 
-//            val height = shapes.sumOf { it(hex.centerX, hex.centerY) }
             val height = generateHeight(shapes, hex.centerX, hex.centerY, n)
 
             // Try to figure out the biome
             val terrainType =
-//                if (height < -0.50) {
-//                TerrainType.DEEP_WATER
-//            } else
                 if (height < -0.25) {
                     TerrainType.DEEP_WATER //SHALLOW_WATER
                 } else if (height < 0.4) {
@@ -153,7 +149,7 @@ class DisplayMap : PApplet() {
                 path?.forEach { hex ->
                     if (lastHex != null) {
                         val g = listOf(lastHex!!, hex).sortedBy { it.gridX * widthTiles + it.gridZ }
-                        roads.add(Pair(g.first(), g.get(1)))
+                        roads.add(Pair(g.first(), g[1]))
                     }
                     lastHex = hex
                 }
@@ -167,7 +163,6 @@ class DisplayMap : PApplet() {
                 .maxByOrNull { critter.fitness(it) }
                 ?.let { it.satelliteData.get().tileTitle = critter.name }
         }
-
     }
 
     // Can build a city on this
@@ -202,10 +197,7 @@ class DisplayMap : PApplet() {
                         landScore /= 2
                     }
                 // Not near other cities
-                score += cities
-                    .map { otherCity -> calc.calculateDistanceBetween(potentialCity, otherCity) }
-                    .sum()
-
+                score += cities.sumOf { otherCity -> calc.calculateDistanceBetween(potentialCity, otherCity) }
 
                 score
 
