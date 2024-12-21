@@ -1,6 +1,8 @@
 package com.stewsters.hexmapgen
 
-import com.stewsters.hexmapgen.TerrainGenerator.generateChunk
+import com.stewsters.hexmapgen.TerrainGenerator.generateHeight
+import kaiju.math.getEuclideanDistance
+import kaiju.noise.OpenSimplexNoise
 import org.hexworks.mixite.core.api.CubeCoordinate
 import org.hexworks.mixite.core.api.HexagonOrientation
 import org.hexworks.mixite.core.api.HexagonalGrid
@@ -15,15 +17,13 @@ import kotlin.random.Random
 
 class DisplayMap : PApplet() {
 
-    val widthTiles = 30
-    val heightTiles = 20
-    val radius = 40.0
-    lateinit var background: PGraphics
+    private val widthTiles = 30
+    private val heightTiles = 20
+    private val radius = 40.0
+    private lateinit var background: PGraphics
+    private lateinit var grid: HexagonalGrid<TileData>
 
-    //    lateinit var hexGrid: HexGrid
-    lateinit var grid: HexagonalGrid<TileData>
-
-    val camera = Camera()
+    private val camera = Camera()
 
     override fun settings() {
         size(1200, 800)
@@ -58,17 +58,35 @@ class DisplayMap : PApplet() {
         TerrainType.FOREST.icons = loadImages("src/main/resources/MapParts/trees")
 
         val n = Random.nextLong()
+
+        // These shapes will resize bump the edges down
+        val shapes = listOf({ x: Double, y: Double ->
+            val d =
+                getEuclideanDistance((widthTiles * radius) / 1.3, (heightTiles * radius) / 1.15, x, y)
+            0.5 - 1 * (d / 800.0)
+
+        })
+        val osn = OpenSimplexNoise()
+
         grid.hexagons.forEach { hex ->
 
-            val height = generateChunk(listOf(), hex.centerX, hex.centerY, n)
+//            val height = shapes.sumOf { it(hex.centerX, hex.centerY) }
+            val height = generateHeight(shapes, hex.centerX, hex.centerY, n)
 
             // Try to figure out the biome
-            val terrainType = if (height < -0.50) {
-                TerrainType.DEEP_WATER
-            } else if (height < -0.25) {
-                TerrainType.SHALLOW_WATER
+            val terrainType =
+//                if (height < -0.50) {
+//                TerrainType.DEEP_WATER
+//            } else
+                if (height < -0.25) {
+                TerrainType.DEEP_WATER //SHALLOW_WATER
             } else if (height < 0.4) {
-                TerrainType.FOREST
+                val forest = osn.random2D(hex.centerX, hex.centerY)
+                if (forest > height)
+                    TerrainType.FOREST
+                else
+                    TerrainType.GRASSLAND
+
             } else if (height < 0.6) {
                 TerrainType.HILL
             } else {
@@ -85,7 +103,7 @@ class DisplayMap : PApplet() {
         }
     }
 
-    fun loadImages(path: String): List<PImage> {
+    private fun loadImages(path: String): List<PImage> {
         return File(path)
             .listFiles()
             ?.map { loadImage(it.path) }
@@ -106,7 +124,7 @@ class DisplayMap : PApplet() {
             val satelliteData: TileData = hex.satelliteData.get()
             // Fill
             if (satelliteData.type?.color != null)
-                fill(satelliteData.type!!.color!!)
+                fill(satelliteData.type!!.color)
             else
                 noFill()
 
@@ -119,7 +137,7 @@ class DisplayMap : PApplet() {
 
             // Icon
             if (satelliteData.icon != null) {
-                imageMode(PApplet.CENTER)
+                imageMode(CENTER)
                 image(satelliteData.icon, hex.centerX.toFloat(), hex.centerY.toFloat())
             }
 

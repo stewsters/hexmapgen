@@ -12,9 +12,9 @@ enum class TerrainType(val color: Int = 0xFFFFFFFF.toInt()) {
     // marsh
     SHALLOW_WATER(0xFFB3EBF2.toInt()),
     DEEP_WATER(0xFF93aabd2.toInt()),
-    GRASSLAND(0xFFe2e2cd.toInt()),
+    GRASSLAND(0xFFe2F2cd.toInt()),
     FIELDS(0xFFaaaa00.toInt()),
-    FOREST(0xff007722.toInt()),
+    FOREST(0xff337744.toInt()),
     HILL(Color.LIGHT_GRAY.rgb),
     MOUNTAIN(Color.PINK.rgb);
 
