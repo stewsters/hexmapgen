@@ -30,6 +30,7 @@ class DisplayMap : PApplet() {
 
     private val camera = Camera()
     private val cities = mutableListOf<Hexagon<TileData>>()
+    private val roads = mutableSetOf<Pair<Hexagon<TileData>, Hexagon<TileData>>>()
 
     override fun settings() {
         size(1200, 800)
@@ -120,13 +121,32 @@ class DisplayMap : PApplet() {
         (0..5).forEach {
             findBestCityLocation()?.let { hex ->
                 val d = hex.satelliteData.get()
-                d.tileTitle = "City"
+                d.tileTitle = NameGen.city.random()
                 d.type = TerrainType.URBAN
                 d.icons = listOf(TerrainType.URBAN.icons.random())
 
                 cities.add(hex)
             }
         }
+
+
+        // connect each city up
+        var lastCity: Hexagon<TileData>? = null
+        cities.forEach { cityHex ->
+            lastCity?.let {
+                val path = getPath(it, cityHex)
+                var lastHex: Hexagon<TileData>? = null
+                path?.forEach { hex ->
+                    if (lastHex != null) {
+                        val g = listOf(lastHex!!, hex).sortedBy { it.gridX * widthTiles + it.gridZ }
+                        roads.add(Pair(g.first(), g.get(1)))
+                    }
+                    lastHex = hex
+                }
+            }
+            lastCity = cityHex
+        }
+
 
     }
 
@@ -238,13 +258,33 @@ class DisplayMap : PApplet() {
             }
 
         }
+
+        // Draw Roads
+        stroke(0xaaDAA06D.toInt())
+        strokeWeight(4f)
+
+        roads.forEach {
+            line(
+                it.first.centerX.toFloat(), it.first.centerY.toFloat(),
+                it.second.centerX.toFloat(), it.second.centerY.toFloat()
+            )
+        }
+        stroke(1f)
+        strokeWeight(1f)
+
         color(0)
         pop()
     }
 
     fun getPath(start: Hexagon<TileData>, end: Hexagon<TileData>): List<Hexagon<TileData>>? {
         val p = findGenericPath(
-            cost = { x, y -> y.satelliteData.get().type?.traversalCost ?: 100.0 },
+            cost = { x, y ->
+                val set = listOf(x, y).sortedBy { it.gridX * widthTiles + it.gridZ }
+                if (roads.contains(Pair(set.first(), set.last())))
+                    1.0
+                else
+                    y.satelliteData.get().type?.traversalCost ?: 100.0
+            },
             heuristic = { s, t -> calc.calculateDistanceBetween(s, t).toDouble() },
             neighbors = { grid.getNeighborsOf(it).toList() },
             start = start,
