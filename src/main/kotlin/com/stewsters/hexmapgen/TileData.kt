@@ -5,7 +5,6 @@ import processing.core.PImage
 
 data class TileData(
     var type: TerrainType? = null,
-//    var color:Int? = null,
     var icon: PImage? = null,
     val tileTitle: String? = null,
 

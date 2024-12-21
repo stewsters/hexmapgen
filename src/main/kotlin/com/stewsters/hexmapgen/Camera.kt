@@ -10,14 +10,11 @@ class Camera(
     var zoomSpeed: Float = 0.01f,
 ) {
 
-
-    // Set the position to centered upon the given `entity`
-    // Position is inversed and scaled by proportionally to zoom.
+    // TODO: zoom to target
 //    fun track(entity) {
 //        this.position.x = (-entity.position.x) * this.position.z + (width / 2);
 //        this.position.y = (-entity.position.y) * this.position.z + (height / 2);
 //    }
-
 
     // Translate & scale based on camera position and zoom
     fun draw(cntx: PApplet) {
@@ -34,15 +31,12 @@ class Camera(
             }
         }
 
-
         // Draw
         cntx.scale(position.z)
         cntx.translate(
             position.x + cntx.width / 2f,
             position.y + cntx.height / 2f
         )
-
-
     }
 
 }

@@ -3,10 +3,14 @@ package com.stewsters.hexmapgen
 import com.stewsters.hexmapgen.TerrainGenerator.generateHeight
 import kaiju.math.getEuclideanDistance
 import kaiju.noise.OpenSimplexNoise
+import kaiju.pathfinder.Path
+import kaiju.pathfinder.findGenericPath
 import org.hexworks.mixite.core.api.CubeCoordinate
+import org.hexworks.mixite.core.api.Hexagon
 import org.hexworks.mixite.core.api.HexagonOrientation
 import org.hexworks.mixite.core.api.HexagonalGrid
 import org.hexworks.mixite.core.api.HexagonalGridBuilder
+import org.hexworks.mixite.core.api.HexagonalGridCalculator
 import org.hexworks.mixite.core.api.HexagonalGridLayout
 import processing.core.PApplet
 import processing.core.PConstants
@@ -22,6 +26,7 @@ class DisplayMap : PApplet() {
     private val radius = 40.0
     private lateinit var background: PGraphics
     private lateinit var grid: HexagonalGrid<TileData>
+    private lateinit var calc: HexagonalGridCalculator<TileData>
 
     private val camera = Camera()
 
@@ -33,13 +38,17 @@ class DisplayMap : PApplet() {
     override fun setup() {
         frameRate(30f)
 
-        val builder: HexagonalGridBuilder<TileData> = HexagonalGridBuilder<TileData>()
-            .setGridHeight(heightTiles)
+        val builder = HexagonalGridBuilder<TileData>()
+        grid = builder
             .setGridWidth(widthTiles)
+            .setGridHeight(heightTiles)
             .setGridLayout(HexagonalGridLayout.RECTANGULAR)
             .setOrientation(HexagonOrientation.FLAT_TOP)
             .setRadius(radius)
-        grid = builder.build()
+            .build()
+
+        calc = builder.buildCalculatorFor(grid);
+
 
         // set initial camera pos
         camera.position.x = -widthTiles / 2f * radius.toFloat()
@@ -64,7 +73,6 @@ class DisplayMap : PApplet() {
             val d =
                 getEuclideanDistance((widthTiles * radius) / 1.3, (heightTiles * radius) / 1.15, x, y)
             0.5 - 1 * (d / 800.0)
-
         })
         val osn = OpenSimplexNoise()
 
@@ -79,19 +87,19 @@ class DisplayMap : PApplet() {
 //                TerrainType.DEEP_WATER
 //            } else
                 if (height < -0.25) {
-                TerrainType.DEEP_WATER //SHALLOW_WATER
-            } else if (height < 0.4) {
-                val forest = osn.random2D(hex.centerX, hex.centerY)
-                if (forest > height)
-                    TerrainType.FOREST
-                else
-                    TerrainType.GRASSLAND
+                    TerrainType.DEEP_WATER //SHALLOW_WATER
+                } else if (height < 0.4) {
+                    val forest = osn.random2D(hex.centerX, hex.centerY)
+                    if (forest > height)
+                        TerrainType.FOREST
+                    else
+                        TerrainType.GRASSLAND
 
-            } else if (height < 0.6) {
-                TerrainType.HILL
-            } else {
-                TerrainType.MOUNTAIN
-            }
+                } else if (height < 0.6) {
+                    TerrainType.HILL
+                } else {
+                    TerrainType.MOUNTAIN
+                }
             // assign biome
 
             hex.setSatelliteData(
@@ -153,6 +161,21 @@ class DisplayMap : PApplet() {
         }
         color(0)
         pop()
+    }
+
+    fun getPath(start: Hexagon<TileData>, end: Hexagon<TileData>): List<Hexagon<TileData>>? {
+        val p = findGenericPath(
+            cost = { x, y -> 1.0 },
+            heuristic = { s, t -> calc.calculateDistanceBetween(s, t).toDouble() },
+            neighbors = { grid.getNeighborsOf(it).toList() },
+            start = start,
+            end = end,
+        )
+
+        return when (p) {
+            is Path.Success -> p.data
+            else -> null
+        }
     }
 
 }

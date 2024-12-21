@@ -1,4 +1,4 @@
-package com.stewsters.com.stewsters.hexmapgen
+package com.stewsters.hexmapgen
 
 import processing.core.PApplet
 
