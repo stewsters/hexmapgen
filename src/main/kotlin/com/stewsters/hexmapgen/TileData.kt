@@ -6,7 +6,7 @@ import processing.core.PImage
 data class TileData(
     var type: TerrainType? = null,
     var icon: PImage? = null,
-    val tileTitle: String? = null,
+    var tileTitle: String? = null,
 
     override var movementCost: Double = 1.0,
     override var opaque: Boolean = false,

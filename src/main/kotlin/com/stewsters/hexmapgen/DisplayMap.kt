@@ -29,6 +29,7 @@ class DisplayMap : PApplet() {
     private lateinit var calc: HexagonalGridCalculator<TileData>
 
     private val camera = Camera()
+    private val cities = mutableListOf<Hexagon<TileData>>()
 
     override fun settings() {
         size(1200, 800)
@@ -109,7 +110,68 @@ class DisplayMap : PApplet() {
                 )
             )
         }
+
+        // Build a city
+        (0..5).forEach {
+            findBestCityLocation()?.let { hex ->
+                val d = hex.satelliteData.get()
+                d.tileTitle = "City"
+                d.type = TerrainType.URBAN
+                d.icon = TerrainType.URBAN.icons.randomOrNull()
+
+                cities.add(hex)
+            }
+        }
+
     }
+
+    // Can build a city on this
+    val cityTiles = listOf(TerrainType.FOREST, TerrainType.GRASSLAND)
+    val waterTiles = listOf(TerrainType.DEEP_WATER, TerrainType.SHALLOW_WATER)
+    val farmland = listOf(TerrainType.GRASSLAND)
+
+    fun findBestCityLocation(): Hexagon<TileData>? {
+        return grid.hexagons
+            .filter {
+                cityTiles.contains(it.satelliteData.get().type)
+            }
+            .filter {
+                grid.getNeighborsOf(it).size == 6
+            }
+            .maxByOrNull { potentialCity ->
+                val neighbors = grid.getNeighborsOf(potentialCity)
+                    .toList()
+                    .map { it.satelliteData.get() }
+                var score = 0.0
+
+                // contain water
+                if (neighbors.map { it.type }.any { waterTiles.contains(it) }) {
+                    score += 10
+                }
+                // contain farmland
+                var landScore = 10.0
+                neighbors.map { it.type }
+                    .filter { farmland.contains(it) }
+                    .forEach { _ ->
+                        score += landScore
+                        landScore /= 2
+                    }
+                // TODO: not near other cities
+                score += cities
+                    .map { otherCity -> calc.calculateDistanceBetween(potentialCity, otherCity) }
+                    .sum ()
+
+
+//                // contain farmland
+//                if (neighbors.map { it.type }.any { farmland.contains(it) }) {
+//                    score += 10
+//                }
+
+                score
+
+            }
+    }
+
 
     private fun loadImages(path: String): List<PImage> {
         return File(path)
@@ -155,7 +217,7 @@ class DisplayMap : PApplet() {
             text(hex.cubeCoordinate.toCoord(), hex.centerX.toFloat(), hex.centerY.toFloat() + 30f)
 
             if (satelliteData.tileTitle != null) {
-                text(satelliteData.tileTitle, hex.centerX.toFloat(), hex.centerY.toFloat() - 30f)
+                text(satelliteData.tileTitle, hex.centerX.toFloat(), hex.centerY.toFloat() - 25f)
             }
 
         }
@@ -165,7 +227,7 @@ class DisplayMap : PApplet() {
 
     fun getPath(start: Hexagon<TileData>, end: Hexagon<TileData>): List<Hexagon<TileData>>? {
         val p = findGenericPath(
-            cost = { x, y -> 1.0 },
+            cost = { x, y -> y.satelliteData.get().type?.traversalCost ?: 100.0 },
             heuristic = { s, t -> calc.calculateDistanceBetween(s, t).toDouble() },
             neighbors = { grid.getNeighborsOf(it).toList() },
             start = start,
