@@ -31,6 +31,7 @@ class DisplayMap : PApplet() {
     private val camera = Camera()
     private val cities = mutableListOf<Hexagon<TileData>>()
     private val roads = mutableSetOf<Pair<Hexagon<TileData>, Hexagon<TileData>>>()
+    private val rivers = mutableSetOf<Pair<Hexagon<TileData>, Hexagon<TileData>>>()
 
     override fun settings() {
         size(1200, 800)
@@ -113,6 +114,9 @@ class DisplayMap : PApplet() {
                 )
             )
         }
+
+        //TODO Rivers - start at springs, go downhill
+
 
         // Build a city
         (0..5).forEach {
@@ -272,8 +276,17 @@ class DisplayMap : PApplet() {
         }
 
         // Draw Roads
-        stroke(0x88DAA06D.toInt())
         strokeWeight(4f)
+        // draw water
+        stroke(0x88DADAFF.toInt())
+        rivers.forEach {
+            line(
+                it.first.centerX.toFloat(), it.first.centerY.toFloat(),
+                it.second.centerX.toFloat(), it.second.centerY.toFloat()
+            )
+        }
+
+        stroke(0x88DAA06D.toInt())
 
         roads.forEach {
             line(
@@ -292,7 +305,10 @@ class DisplayMap : PApplet() {
         val p = findGenericPath(
             cost = { x, y ->
                 val set = listOf(x, y).sortedBy { it.gridX * widthTiles + it.gridZ }
-                if (roads.contains(Pair(set.first(), set.last())))
+                val key = Pair(set.first(), set.last())
+                if(rivers.contains(key))
+                    5.0
+                if (roads.contains(key))
                     1.0
                 else
                     y.satelliteData.get().type?.traversalCost ?: 100.0

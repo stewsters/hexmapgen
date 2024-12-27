@@ -1,4 +1,10 @@
-# This Generates Hex Maps 
+# Hex Map generation This Generates Hex Maps 
+
+To run the application
+```bash
+./gradlew run
+```
+
 
 ## Todo items
 
