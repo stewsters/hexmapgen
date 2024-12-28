@@ -1,23 +1,17 @@
 # This Generates Hex Maps 
 
-## Todo items
+To run this
+```bash
+./gradlew :run
+```
 
-hover for info
+## Todo items
 
 Print to file
 
 Make Rivers - roll downhill till the hit water
 
-Place Cities - search, distance
-
 Place Towns
 
-Place fields nearby
-
-Make Roads between settlements
-
 place ruins
-
-place monster Lairs
-
 
