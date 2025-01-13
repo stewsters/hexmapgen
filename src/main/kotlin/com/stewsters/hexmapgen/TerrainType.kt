@@ -14,8 +14,8 @@ enum class TerrainType(
 
     // grasslands
     // marsh
-    SHALLOW_WATER(0xFFadd8e7.toInt(), traversalCost = 30.0),
-    DEEP_WATER(0xFF9dc8d7.toInt(), traversalCost = 50.0),
+    SHALLOW_WATER(0xFFadd8e7.toInt(), traversalCost = 50.0),
+    DEEP_WATER(0xFF9dc8d7.toInt(), traversalCost = 100.0),
     GRASSLAND(0xFFbdd5a2.toInt(), traversalCost = 2.0),
     FIELDS(0xFFaaaa00.toInt(), traversalCost = 2.0, multiIcon = true),
     FOREST(0xff83a65a.toInt(), traversalCost = 4.0, multiIcon = true),

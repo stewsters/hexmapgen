@@ -1,5 +1,8 @@
 package com.stewsters.hexmapgen
 
+import org.hexworks.mixite.core.api.Hexagon
+import org.hexworks.mixite.core.api.HexagonalGrid
+import org.hexworks.mixite.core.vendor.Maybe
 import processing.core.PApplet
 import processing.core.PVector
 
@@ -37,6 +40,12 @@ class Camera(
             position.x + cntx.width / 2f,
             position.y + cntx.height / 2f
         )
+    }
+
+    fun screenToWorld(cntx: PApplet, grid: HexagonalGrid<TileData>, x: Double, y: Double): Maybe<Hexagon<TileData>> {
+        val screenX = x - position.x - cntx.width / 2f
+        val screenY = y - position.y - cntx.height / 2f
+        return grid.getByPixelCoordinate(screenX, screenY)
     }
 
 }
