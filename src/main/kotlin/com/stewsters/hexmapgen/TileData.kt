@@ -1,5 +1,6 @@
 package com.stewsters.hexmapgen
 
+import com.stewsters.hexmapgen.types.TerrainType
 import org.hexworks.mixite.core.api.contract.SatelliteData
 import processing.core.PImage
 

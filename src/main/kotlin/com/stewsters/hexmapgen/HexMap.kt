@@ -1,7 +1,9 @@
 package com.stewsters.hexmapgen
 
-import com.stewsters.hexmapgen.TerrainGenerator.generateHeight
-import kaiju.math.getEuclideanDistance
+import com.stewsters.hexmapgen.generator.NameGen
+import com.stewsters.hexmapgen.generator.TerrainGenerator.generateHeight
+import com.stewsters.hexmapgen.types.Critter
+import com.stewsters.hexmapgen.types.TerrainType
 import kaiju.noise.OpenSimplexNoise
 import kaiju.pathfinder.Path
 import kaiju.pathfinder.findGenericPath
@@ -43,11 +45,11 @@ class HexMap(builder: HexagonalGridBuilder<TileData>) {
 //            0.5 - 1 * (d / 800.0)
 //        }
             { x: Double, y: Double ->
-                0.6 - (y/(widthTiles * radius))
+                0.6 - (y / (widthTiles * radius))
 //            val d =
 //                getEuclideanDistance((widthTiles * radius) / 1.3, (heightTiles * radius) / 1.15, x, y)
 //            0.5 - 1 * (d / 800.0)
-        }
+            }
         )
         val osn = OpenSimplexNoise()
 
@@ -90,7 +92,7 @@ class HexMap(builder: HexagonalGridBuilder<TileData>) {
 
 
         // Build a city
-        (0..10).forEach {
+        (0..10).forEach { _ ->
             findBestCityLocation()?.let { hex ->
                 val d = hex.satelliteData.get()
                 d.tileTitle = NameGen.city.random()
@@ -208,8 +210,8 @@ class HexMap(builder: HexagonalGridBuilder<TileData>) {
                 return@Critter -10000.0
 
             val neighborDistance: Double = cities
-                .map { calc.calculateDistanceBetween(hex, it).toDouble() }
-                .minOrNull() ?: -10000.0
+                .minOfOrNull { calc.calculateDistanceBetween(hex, it).toDouble() }
+                ?: -10000.0
 
             return@Critter neighborDistance
         },
@@ -218,16 +220,16 @@ class HexMap(builder: HexagonalGridBuilder<TileData>) {
                 -10000.0
             else
                 Random.nextDouble(1000.0) - (cities
-                    .map { calc.calculateDistanceBetween(hex, it).toDouble() }
-                    .minOrNull() ?: 10000.0)
+                    .minOfOrNull { calc.calculateDistanceBetween(hex, it).toDouble() }
+                    ?: 10000.0)
         },
         Critter("Goblin") { hex: Hexagon<TileData> ->
             if (hex.satelliteData.get().type != TerrainType.HILL)
                 -10000.0
             else
                 Random.nextDouble(1000.0) - (cities
-                    .map { calc.calculateDistanceBetween(hex, it).toDouble() }
-                    .minOrNull() ?: 10000.0)
+                    .minOfOrNull { calc.calculateDistanceBetween(hex, it).toDouble() }
+                    ?: 10000.0)
         }
     )
 

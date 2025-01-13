@@ -1,4 +1,4 @@
-package com.stewsters.hexmapgen
+package com.stewsters.hexmapgen.types
 
 import processing.core.PImage
 

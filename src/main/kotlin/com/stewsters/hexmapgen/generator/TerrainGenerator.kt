@@ -1,4 +1,4 @@
-package com.stewsters.hexmapgen
+package com.stewsters.hexmapgen.generator
 
 import kaiju.noise.OpenSimplexNoise
 import kotlin.math.abs
