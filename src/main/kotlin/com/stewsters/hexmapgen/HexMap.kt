@@ -95,7 +95,7 @@ class HexMap(builder: HexagonalGridBuilder<TileData>) {
         (0..10).forEach { _ ->
             findBestCityLocation()?.let { hex ->
                 val d = hex.satelliteData.get()
-                d.tileTitle = NameGen.city.random()
+                d.tileTitle = NameGen.cityPrefix.random() + NameGen.citySuffix.random()
                 d.type = TerrainType.URBAN
                 d.icons = listOf(TerrainType.URBAN.icons.random())
 

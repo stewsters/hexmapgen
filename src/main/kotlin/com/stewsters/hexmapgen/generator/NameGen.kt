@@ -2,20 +2,35 @@ package com.stewsters.hexmapgen.generator
 
 
 object NameGen {
-    val city = listOf(
+    val cityPrefix = listOf(
         "Tandas",
-        "Garrapolis",
-        "Agarthis",
-        "Wentboro",
+        "Garra",
+        "Agar",
+        "Went",
         "Colia",
-        "Dallias",
+        "Caer",
+        "Dall",
         "Elgin",
-        "Chergorg",
-        "Bardur",
+        "Cher",
+        "Bar",
         "Kirkland",
-        "Doolish",
+        "Dool",
         "Gorse",
-        "Arthurton",
-        "Drummond"
+        "Arthur",
+        "Drum"
     )
+
+    val citySuffix = listOf(
+        "appolis",
+        "this",
+        "borro",
+        "leon",
+        "ias",
+        "gorg",
+        "dur",
+        "ish",
+        "ton",
+        "mond"
+    )
+
 }
