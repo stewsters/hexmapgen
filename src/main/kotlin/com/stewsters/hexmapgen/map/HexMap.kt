@@ -161,10 +161,10 @@ class HexMap(builder: HexagonalGridBuilder<TileData>) {
 
     fun findBestCityLocation(): Hexagon<TileData>? {
         return grid.hexagons
-            .filter {
+            .filter { // Filters for only the tiletypes that can hold a city
                 cityTiles.contains(it.satelliteData.get().type)
             }
-            .filter {
+            .filter {// no edge cities
                 grid.getNeighborsOf(it).size == 6
             }
             .maxByOrNull { potentialCity ->
@@ -185,8 +185,15 @@ class HexMap(builder: HexagonalGridBuilder<TileData>) {
                         score += landScore
                         landScore /= 2
                     }
+                score+= landScore
+
                 // Not near other cities
-                score += cities.sumOf { otherCity -> calc.calculateDistanceBetween(potentialCity, otherCity) }
+                val adjacencyScore = cities.minOfOrNull { otherCity ->
+                    calc.calculateDistanceBetween(potentialCity, otherCity)
+                } ?:0
+
+
+                score += adjacencyScore
 
                 score
 
