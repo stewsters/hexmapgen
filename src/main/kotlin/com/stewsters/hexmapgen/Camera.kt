@@ -43,8 +43,8 @@ class Camera(
     }
 
     fun screenToWorld(cntx: PApplet, grid: HexagonalGrid<TileData>, x: Double, y: Double): Maybe<Hexagon<TileData>> {
-        val screenX = x - position.x - cntx.width / 2f
-        val screenY = y - position.y - cntx.height / 2f
+        val screenX = x / position.z - position.x - cntx.width / 2f
+        val screenY = y / position.z - position.y - cntx.height / 2f
         return grid.getByPixelCoordinate(screenX, screenY)
     }
 

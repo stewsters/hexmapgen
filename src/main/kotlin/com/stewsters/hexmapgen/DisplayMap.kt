@@ -1,5 +1,6 @@
 package com.stewsters.hexmapgen
 
+import com.stewsters.hexmapgen.map.HexMap
 import com.stewsters.hexmapgen.types.TerrainType
 import org.hexworks.mixite.core.api.CubeCoordinate
 import org.hexworks.mixite.core.api.HexagonOrientation
@@ -90,8 +91,19 @@ class DisplayMap : PApplet() {
             mouseY.toDouble()
         )
 
+        //edges of vision
+        val lower = camera.screenToWorld(this, hexMap.grid, -1.0, -1.0)
+        val higher = camera.screenToWorld(this, hexMap.grid, width.toDouble() - 1, height.toDouble() - 1)
+
         hexMap.grid.hexagons.forEach { hex ->
 
+            // Don't render off screen
+            if (lower.isPresent && (hex.centerX <= lower.get().centerX - 1 || hex.centerY < lower.get().centerY - radius)) {
+                return@forEach
+            }
+            if (higher.isPresent && (hex.centerX > higher.get().centerX + 1 || hex.centerY > higher.get().centerY + 1)) {
+                return@forEach
+            }
 
             val satelliteData: TileData = hex.satelliteData.get()
             // Fill

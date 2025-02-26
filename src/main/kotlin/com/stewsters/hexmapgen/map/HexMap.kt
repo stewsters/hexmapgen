@@ -1,5 +1,6 @@
-package com.stewsters.hexmapgen
+package com.stewsters.hexmapgen.map
 
+import com.stewsters.hexmapgen.TileData
 import com.stewsters.hexmapgen.generator.NameGen
 import com.stewsters.hexmapgen.generator.TerrainGenerator.generateHeight
 import com.stewsters.hexmapgen.types.Critter
