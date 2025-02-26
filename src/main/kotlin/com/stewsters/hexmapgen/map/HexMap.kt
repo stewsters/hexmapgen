@@ -2,9 +2,10 @@ package com.stewsters.hexmapgen.map
 
 import com.stewsters.hexmapgen.TileData
 import com.stewsters.hexmapgen.generator.NameGen
-import com.stewsters.hexmapgen.generator.TerrainGenerator.generateHeight
+import com.stewsters.hexmapgen.generator.TerrainGenerator.generateHeightCelly
 import com.stewsters.hexmapgen.types.Critter
 import com.stewsters.hexmapgen.types.TerrainType
+import kaiju.math.getEuclideanDistance
 import kaiju.noise.OpenSimplexNoise
 import kaiju.pathfinder.Path
 import kaiju.pathfinder.findGenericPath
@@ -37,39 +38,53 @@ class HexMap(builder: HexagonalGridBuilder<TileData>) {
 
     fun generate() {
         val n = Random.nextLong()
+        val totalWidth = widthTiles * radius
+        val totalHeight = heightTiles * radius
+
+        val northernMountainsShape = { x: Double, y: Double ->
+            0.6 - (y / (totalWidth))
+        }
+
+        val islandShape = { x: Double, y: Double ->
+            // This builds an island in the center
+            val d =
+                getEuclideanDistance((totalWidth) / 1.3, (totalHeight) / 1.15, x, y)
+            println(widthTiles * radius)
+            0.5 - 1 * (d / (totalWidth / 1.5))
+        }
+
+        val bowlShape = { x: Double, y: Double ->
+            // This builds an island in the center
+            val d =
+                getEuclideanDistance((totalWidth) / 1.3, (totalHeight) / 1.15, x, y)
+//            println(widthTiles*radius)
+            -0.5 + 1 * (d / (totalWidth / 1.5))
+        }
 
         // These shapes will resize bump the edges down
-        val shapes = listOf(
-//            { x: Double, y: Double ->
-//            val d =
-//                getEuclideanDistance((widthTiles * radius) / 1.3, (heightTiles * radius) / 1.15, x, y)
-//            0.5 - 1 * (d / 800.0)
-//        }
-            { x: Double, y: Double ->
-                0.6 - (y / (widthTiles * radius))
-//            val d =
-//                getEuclideanDistance((widthTiles * radius) / 1.3, (heightTiles * radius) / 1.15, x, y)
-//            0.5 - 1 * (d / 800.0)
-            }
+        val shapes = listOf<(Double, Double) -> Double>(
+            bowlShape
         )
-        val osn = OpenSimplexNoise()
+
+        val osn = OpenSimplexNoise(n)
 
         grid.hexagons.forEach { hex ->
 
-            val height = generateHeight(shapes, hex.centerX, hex.centerY, n)
+//            val height = generateHeightPeaky(shapes, hex.centerX, hex.centerY, n)
+            val height = generateHeightCelly(shapes, hex.centerX, hex.centerY, osn)
 
             // Try to figure out the biome
             val terrainType =
-                if (height < -0.25) {
+                if (height < 0.25) {
                     TerrainType.DEEP_WATER //SHALLOW_WATER
-                } else if (height < 0.4) {
+                } else if (height < 0.6) {
                     val forest = osn.random2D(hex.centerX, hex.centerY)
                     if (forest > height)
                         TerrainType.FOREST
                     else
                         TerrainType.GRASSLAND
 
-                } else if (height < 0.6) {
+                } else if (height < 0.7) {
                     TerrainType.HILL
                 } else {
                     TerrainType.MOUNTAIN

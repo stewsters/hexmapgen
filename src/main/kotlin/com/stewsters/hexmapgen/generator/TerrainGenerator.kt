@@ -5,21 +5,19 @@ import kotlin.math.abs
 
 object TerrainGenerator {
 
-    fun generateHeight(
+    fun generateHeightPeaky(
         shapeMods: List<(x: Double, y: Double) -> Double>,
         x: Double,
         y: Double,
-        seed: Long,
+        osn : OpenSimplexNoise
     ): Double {
 
-        val el = OpenSimplexNoise(seed)
-
-        var ridginess = fbm(el, x, y, 3, 1.0 / 200.0, 1.0, 2.0, 1.0)
+        var ridginess = fbm(osn, x, y, 3, 1.0 / 200.0, 1.0, 2.0, 1.0)
         ridginess = abs(ridginess) * -1
 
         // Experimental elevation
         val elevation =
-            fbm(el, x, y, 3, 1.0 / 200.0, 1.0, 2.0, 0.3) * ridginess + shapeMods.sumOf { it(x, y) }
+            fbm(osn, x, y, 3, 1.0 / 200.0, 1.0, 2.0, 0.3) * ridginess + shapeMods.sumOf { it(x, y) }
 
         // decent elevation
 //        val elevation = max(
@@ -30,8 +28,24 @@ object TerrainGenerator {
         return elevation
     }
 
+    fun generateHeightCelly(
+        shapeMods: List<(x: Double, y: Double) -> Double>,
+        x: Double,
+        y: Double,
+        osn : OpenSimplexNoise
+    ): Double {
+
+        var ridginess = fbm(osn, x, y, 3, 1.0 / 1000.0, 1.0, 2.0, 1.0)
+        ridginess = (abs(ridginess) * -0.5) + 1
+
+        val elevationNoise = 0.5 * fbm(osn, x, y, 3, 1.0 / 300.0, 1.0, 2.0, 0.3)
+
+        return 0.5 * ridginess + 0.5 * elevationNoise + 0.5 * shapeMods.sumOf { it(x, y) }
+    }
+
+
     fun fbm(
-        el: OpenSimplexNoise,
+        osn: OpenSimplexNoise,
         x: Double,
         y: Double,
         octaves: Int,
@@ -44,7 +58,7 @@ object TerrainGenerator {
         var amp = amplitude
         var total = 0.0
         for (i in 0 until octaves) {
-            total += el.random2D(x * freq, y * freq) * amp
+            total += osn.random2D(x * freq, y * freq) * amp
             freq *= lacunarity
             amp *= gain
         }
