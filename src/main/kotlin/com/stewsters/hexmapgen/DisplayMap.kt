@@ -28,12 +28,12 @@ class DisplayMap : PApplet() {
 
     private fun load() {
         //  load all the images in
-        TerrainType.URBAN.icons = loadImages("src/main/resources/MapParts/cities")
-        TerrainType.TOWN.icons = loadImages("src/main/resources/MapParts/towns")
-        TerrainType.HILL.icons = loadImages("src/main/resources/MapParts/hills")
-        TerrainType.MOUNTAIN.icons = loadImages("src/main/resources/MapParts/mountains")
-        TerrainType.FOREST.icons = loadImages("src/main/resources/MapParts/trees")
-        TerrainType.FIELDS.icons = loadImages("src/main/resources/MapParts/fields")
+        TerrainType.URBAN.icons = loadImages("assets/MapParts/cities")
+        TerrainType.TOWN.icons = loadImages("assets/MapParts/towns")
+        TerrainType.HILL.icons = loadImages("assets/MapParts/hills")
+        TerrainType.MOUNTAIN.icons = loadImages("assets/MapParts/mountains")
+        TerrainType.FOREST.icons = loadImages("assets/MapParts/trees")
+        TerrainType.FIELDS.icons = loadImages("assets/MapParts/fields")
     }
 
     override fun setup() {

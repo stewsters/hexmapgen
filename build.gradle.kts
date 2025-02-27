@@ -1,6 +1,8 @@
 plugins {
     kotlin("jvm") version "2.0.21"
     application
+    id("com.github.johnrengelman.shadow") version "8.1.1"
+    id ("org.beryx.runtime") version "1.13.1"
 }
 
 group = "com.stewsters"
@@ -24,6 +26,41 @@ application {
     mainClass = "com.stewsters.hexmapgen.MainKt"
 }
 
+tasks.withType<Jar> {
+    manifest {
+        attributes["Main-Class"] = "com.stewsters.hexmapgen.MainKt"
+    }
+}
+
 tasks.test {
     useJUnitPlatform()
 }
+
+runtime {
+    options = listOf("--strip-debug", "--compress", "2", "--no-header-files", "--no-man-pages")
+//    modules =listOf ("java.naming", "java.xml")
+
+    launcher {
+        jvmArgs = listOf("-Djava.awt.headless=false")
+    }
+}
+
+tasks.register<Copy>("copyAssets") {
+    mustRunAfter("installShadowDist")
+    from("assets/")
+    include("**/*.*")
+    into(layout.buildDirectory.dir("install/hexmapgen-shadow/assets"))
+}
+
+tasks.named("installShadowDist"){
+   finalizedBy("copyAssets")
+}
+
+
+
+//jlink {
+//    options =listOf("--strip-debug", "--compress", "2", "--no-header-files", "--no-man-pages", "--bind-services")
+//    launcher {
+//        name = "MyApplication"
+//    }
+//}
