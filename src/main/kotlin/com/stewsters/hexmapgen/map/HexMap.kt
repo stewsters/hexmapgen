@@ -75,7 +75,9 @@ class HexMap(builder: HexagonalGridBuilder<TileData>) {
 
             // Try to figure out the biome
             val terrainType =
-                if (height < 0.25) {
+                if (grid.getNeighborsOf(hex).size != 6) {
+                    TerrainType.MOUNTAIN // Edge should be mountain
+                } else if (height < 0.25) {
                     TerrainType.DEEP_WATER //SHALLOW_WATER
                 } else if (height < 0.6) {
                     val forest = osn.random2D(hex.centerX, hex.centerY)
@@ -185,14 +187,12 @@ class HexMap(builder: HexagonalGridBuilder<TileData>) {
                         score += landScore
                         landScore /= 2
                     }
-                score+= landScore
+                score += landScore
 
                 // Not near other cities
                 val adjacencyScore = cities.minOfOrNull { otherCity ->
                     calc.calculateDistanceBetween(potentialCity, otherCity)
-                } ?:0
-
-
+                } ?: 0
                 score += adjacencyScore
 
                 score
