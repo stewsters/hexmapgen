@@ -13,6 +13,7 @@ import org.hexworks.mixite.core.api.Hexagon
 import org.hexworks.mixite.core.api.HexagonalGrid
 import org.hexworks.mixite.core.api.HexagonalGridBuilder
 import org.hexworks.mixite.core.api.HexagonalGridCalculator
+import kotlin.math.max
 import kotlin.random.Random
 
 // Can build a city on this
@@ -68,14 +69,16 @@ class HexMap(builder: HexagonalGridBuilder<TileData>) {
 
         val osn = OpenSimplexNoise(n)
 
+        val mountain = mutableListOf<Hexagon<TileData>>()
         grid.hexagons.forEach { hex ->
 
 //            val height = generateHeightPeaky(shapes, hex.centerX, hex.centerY, n)
-            val height = generateHeightCelly(shapes, hex.centerX, hex.centerY, osn)
+            var height = generateHeightCelly(shapes, hex.centerX, hex.centerY, osn)
 
             // Try to figure out the biome
             val terrainType =
                 if (grid.getNeighborsOf(hex).size != 6) {
+                    height = max(0.7, height) // Set it to mountain height at least
                     TerrainType.MOUNTAIN // Edge should be mountain
                 } else if (height < 0.25) {
                     TerrainType.DEEP_WATER //SHALLOW_WATER
@@ -89,6 +92,7 @@ class HexMap(builder: HexagonalGridBuilder<TileData>) {
                 } else if (height < 0.7) {
                     TerrainType.HILL
                 } else {
+                    mountain.add(hex)
                     TerrainType.MOUNTAIN
                 }
             // assign biome
@@ -96,6 +100,7 @@ class HexMap(builder: HexagonalGridBuilder<TileData>) {
             hex.setSatelliteData(
                 TileData(
                     type = terrainType,
+                    elevation = height,
                     icons = if (terrainType.multiIcon)
                         terrainType.icons.randomList((2..5).random())
                     else if (terrainType.icons.isEmpty())
@@ -106,8 +111,32 @@ class HexMap(builder: HexagonalGridBuilder<TileData>) {
             )
         }
 
-        //TODO Rivers - start at springs, go downhill
 
+        mountain.shuffled().take(10).forEach { spring ->
+            // Rivers - start at springs, go downhill to form a pool
+            var start = spring
+
+            while (true) {
+                val lowest =
+                    grid.getNeighborsOf(start).minByOrNull { it.satelliteData.get().elevation ?: Double.MAX_VALUE }
+                if (
+                    (lowest?.satelliteData?.get()?.elevation ?: Double.MAX_VALUE) < (start.satelliteData.get().elevation
+                        ?: 0.0)
+                ) {
+                    val link = Pair(start, lowest!!)
+                    rivers.add(link)
+                    start = lowest
+                } else {
+                    // we are at a local minima, throw a pond in
+                    val data = start.satelliteData.get()
+
+                    data.type = TerrainType.DEEP_WATER
+                    data.icons = listOf()
+                    break
+                }
+            }
+
+        }
 
         // Build a city
         (0..10).forEach { _ ->
@@ -143,7 +172,7 @@ class HexMap(builder: HexagonalGridBuilder<TileData>) {
                 var lastHex: Hexagon<TileData>? = null
                 path?.forEach { hex ->
                     if (lastHex != null) {
-                        val g = listOf(lastHex!!, hex).sortedBy { it.gridX * widthTiles + it.gridZ }
+                        val g = listOf(lastHex, hex).sortedBy { it.gridX * widthTiles + it.gridZ }
                         roads.add(Pair(g.first(), g[1]))
                     }
                     lastHex = hex

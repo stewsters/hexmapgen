@@ -9,7 +9,7 @@ object TerrainGenerator {
         shapeMods: List<(x: Double, y: Double) -> Double>,
         x: Double,
         y: Double,
-        osn : OpenSimplexNoise
+        osn: OpenSimplexNoise
     ): Double {
 
         var ridginess = fbm(osn, x, y, 3, 1.0 / 200.0, 1.0, 2.0, 1.0)
@@ -32,7 +32,7 @@ object TerrainGenerator {
         shapeMods: List<(x: Double, y: Double) -> Double>,
         x: Double,
         y: Double,
-        osn : OpenSimplexNoise
+        osn: OpenSimplexNoise
     ): Double {
 
         var ridginess = fbm(osn, x, y, 3, 1.0 / 1000.0, 1.0, 2.0, 1.0)

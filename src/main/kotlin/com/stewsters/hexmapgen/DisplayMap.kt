@@ -98,7 +98,7 @@ class DisplayMap : PApplet() {
         hexMap.grid.hexagons.forEach { hex ->
 
             // Don't render off screen
-            if (lower.isPresent && (hex.centerX <= lower.get().centerX - 1 || hex.centerY < lower.get().centerY - radius)) {
+            if (lower.isPresent && (hex.centerX < lower.get().centerX - 1 || hex.centerY < lower.get().centerY - radius)) {
                 return@forEach
             }
             if (higher.isPresent && (hex.centerX > higher.get().centerX + 1 || hex.centerY > higher.get().centerY + 1)) {
@@ -156,9 +156,9 @@ class DisplayMap : PApplet() {
         }
 
         // Draw Roads
-        strokeWeight(4f)
+        strokeWeight(8f)
         // draw water
-        stroke(0x88DADAFF.toInt())
+        stroke(TerrainType.DEEP_WATER.color.toInt())
         hexMap.rivers.forEach {
             line(
                 it.first.centerX.toFloat(), it.first.centerY.toFloat(),
