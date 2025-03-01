@@ -10,7 +10,6 @@ import com.stewsters.hexmapgen.types.TerrainType
 import kaiju.math.getEuclideanDistance
 import kaiju.noise.OpenSimplexNoise
 import org.hexworks.mixite.core.api.Hexagon
-import kotlin.collections.contains
 import kotlin.math.max
 import kotlin.random.Random
 

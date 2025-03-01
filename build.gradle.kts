@@ -2,7 +2,7 @@ plugins {
     kotlin("jvm") version "2.0.21"
     application
     id("com.github.johnrengelman.shadow") version "8.1.1"
-    id ("org.beryx.runtime") version "1.13.1"
+    id("org.beryx.runtime") version "1.13.1"
 }
 
 group = "com.stewsters"
@@ -52,10 +52,9 @@ tasks.register<Copy>("copyAssets") {
     into(layout.buildDirectory.dir("install/hexmapgen-shadow/assets"))
 }
 
-tasks.named("installShadowDist"){
-   finalizedBy("copyAssets")
+tasks.named("installShadowDist") {
+    finalizedBy("copyAssets")
 }
-
 
 
 //jlink {
