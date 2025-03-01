@@ -1,5 +1,6 @@
 package com.stewsters.hexmapgen
 
+import com.stewsters.hexmapgen.generator.generate
 import com.stewsters.hexmapgen.map.HexMap
 import com.stewsters.hexmapgen.types.TerrainType
 import org.hexworks.mixite.core.api.CubeCoordinate
@@ -52,7 +53,7 @@ class DisplayMap : PApplet() {
             .setRadius(radius)
 
         hexMap = HexMap(builder)
-        hexMap.generate()
+        generate(hexMap)
 
         // set initial camera pos
         camera.position.x = -widthTiles / 2f * radius.toFloat()
